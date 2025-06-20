@@ -1,9 +1,10 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-
-
+import { useAuth } from '../../context/AuthContext.jsx'; // Импорт хука
 
 export const HomePage = () => {
+  const { authStore } = useAuth(); // Получаем authStore из контекста
+
   return (
     <div className="bg-[#F9F9F9] min-h-screen">
       {/* Заголовок */}
@@ -18,11 +19,16 @@ export const HomePage = () => {
             <Link to="/games" className="text-black hover:text-gray-700">Игры</Link>
             <Link to="/testers" className="text-black hover:text-gray-700">Тестеры</Link>
             <Link to="/companies" className="text-black hover:text-gray-700">Компании</Link>
+            {authStore.token && (
+              <Link to="/dashboard" className="text-black hover:text-gray-700">Профиль</Link>
+            )}
           </nav>
           <div className="flex space-x-4">
-            <Link to="/register"><button className="bg-red-600 text-white px-4 py-2 rounded-md font-bold hover:bg-red-700 transition-colors">
-              Регистрация
-            </button></Link>
+            <Link to="/register">
+              <button className="bg-red-600 text-white px-4 py-2 rounded-md font-bold hover:bg-red-700 transition-colors">
+                Регистрация
+              </button>
+            </Link>
             <Link to="/login">
               <button className="bg-white border border-gray-300 text-red-600 px-4 py-2 rounded-md hover:bg-gray-100 transition-colors">
                 Вход

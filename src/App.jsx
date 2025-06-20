@@ -1,19 +1,27 @@
 import React from 'react';
-import { Routes, Route } from 'react-router-dom';
-import {HomePage} from './components/pages/HomePage';
-import {LoginPage} from './components/pages/LoginPage';
-import {RegisterPage} from './components/pages/RegisterPage';
-import {Dashboard} from './components/pages/Dashboard';
-import {PrivateRoute} from './components/common/PrivateRoute';
+import { Route, Routes } from 'react-router-dom';
+import  LoginPage  from './components/pages/LoginPage';
+import  RegisterPage  from './components/pages/RegisterPage';
+import  UploadGameDemo  from './components/UploadGameDemo';
+import  DownloadGameDemo  from './components/DownloadGameDemo';
+import  {HomePage}  from './components/pages/HomePage'; 
+import Dashboard from './components/pages/Dashboard'; // Укажи правильный путь к файлу
+import { AuthProvider } from './context/AuthContext.jsx';
 
-export function App() {
+function App() {
   return (
-    <Routes>
-      <Route path="/" element={<HomePage />} />
+    <AuthProvider>
+ <Routes>
+      <Route path="/" element={<HomePage />} /> {/* Начальная страница */}
       <Route path="/login" element={<LoginPage />} />
       <Route path="/register" element={<RegisterPage />} />
-      <Route path="/dashboard1" element={<PrivateRoute><Dashboard /></PrivateRoute>}/>
+      <Route path="/upload" element={<UploadGameDemo />} />
+      <Route path="/download" element={<DownloadGameDemo />} />
+      <Route path="/dashboard" element={<Dashboard />} />
+      <Route path="*" element={<div>404 - Страница не найдена</div>} /> {/* Обработчик 404 */}
     </Routes>
+    </AuthProvider>
   );
 }
 
+export default App;

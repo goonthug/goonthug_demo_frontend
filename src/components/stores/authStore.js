@@ -1,43 +1,56 @@
+// src/stores/authStore.js
 import { makeAutoObservable } from 'mobx';
+import axios from 'axios';
 
 class AuthStore {
-  userData = null;
-  isLoading = false;
-  error = null;
-  token = localStorage.getItem('jwtToken') || null;
+  token = null;
+  user = null;
 
   constructor() {
     makeAutoObservable(this);
+    this.token = localStorage.getItem('token');
+    if (this.token) {
+      axios.defaults.headers.common['Authorization'] = `Bearer ${this.token}`;
+    }
+  }
+
+  async register({ username, password, role, companyName, firstName, lastName }) {
+    try {
+      const data = {
+        username,
+        password,
+        role,
+        ...(role === 'COMPANY' ? { companyName } : { firstName, lastName }),
+      };
+      const response = await axios.post('http://localhost:8080/api/register', data); // Укажи полный URL
+      if (response.status === 200) {
+        return true; // Успешная регистрация
+      }
+    } catch (error) {
+      throw new Error(error.response?.data || 'Ошибка регистрации');
+    }
   }
 
   async login(username, password) {
-    this.isLoading = true;
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    this.token = 'fake-token';
-    localStorage.setItem('jwtToken', this.token);
-    this.isLoading = false;
-  }
-
-  async register(username, password, role) {
-    this.isLoading = true;
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    this.isLoading = false;
-  }
-
-  async fetchUserData() {
-    this.isLoading = true;
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    this.userData = [
-      { id: 1, name: 'Game 1', status: 'Active' },
-      { id: 2, name: 'Game 2', status: 'Inactive' },
-    ];
-    this.isLoading = false;
+    try {
+      const response = await axios.post('http://localhost:8080/api/login', { username, password }); // Укажи полный URL
+      if (response.status === 200) {
+        this.token = response.data.token;
+        localStorage.setItem('token', this.token);
+        axios.defaults.headers.common['Authorization'] = `Bearer ${this.token}`;
+        return true; // Успешный вход
+      }
+    } catch (error) {
+      console.error('Login error:', error.response?.data || error.message); // Для отладки
+      throw new Error(error.response?.data || 'Неверное имя пользователя или пароль');
+    }
   }
 
   logout() {
     this.token = null;
-    this.userData = null;
-    localStorage.removeItem('jwtToken');
+    this.user = null;
+    localStorage.removeItem('token');
+    delete axios.defaults.headers.common['Authorization'];
   }
 }
 
