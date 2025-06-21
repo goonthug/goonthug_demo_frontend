@@ -1,16 +1,20 @@
-// src/context/AuthContext.jsx
-import React, { createContext, useContext, useState } from 'react';
+import React, { createContext, useContext } from 'react';
+import authStore from '../components/stores/authStore.js'; // Исправлен путь
 
 const AuthContext = createContext();
 
-export function AuthProvider({ children }) {
-  const [authStore, setAuthStore] = useState({ token: localStorage.getItem('token') || null });
-
+export const AuthProvider = ({ children }) => {
   return (
-    <AuthContext.Provider value={{ authStore, setAuthStore }}>
+    <AuthContext.Provider value={{ authStore }}>
       {children}
     </AuthContext.Provider>
   );
-}
+};
 
-export const useAuth = () => useContext(AuthContext);
+export const useAuth = () => {
+  const context = useContext(AuthContext);
+  if (!context) {
+    throw new Error('useAuth must be used within an AuthProvider');
+  }
+  return context;
+};

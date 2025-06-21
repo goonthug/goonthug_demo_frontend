@@ -12,13 +12,18 @@ const Dashboard = () => {
   useEffect(() => {
     const fetchUserData = async () => {
       try {
-        const response = await axios.get('/api/user/profile', {
+        const response = await axios.get('http://localhost:8080/api/user/profile', {
           headers: { Authorization: `Bearer ${authStore.token}` },
         });
         setUserData(response.data);
-        setLoading(false);
       } catch (err) {
-        setError('Не удалось загрузить данные пользователя');
+        if (err.response?.status === 401) {
+          authStore.logout();
+          navigate('/login');
+        } else {
+          setError('Не удалось загрузить данные пользователя');
+        }
+      } finally {
         setLoading(false);
       }
     };
@@ -30,6 +35,11 @@ const Dashboard = () => {
     }
   }, [navigate]);
 
+  const handleLogout = () => {
+    authStore.logout();
+    navigate('/');
+  };
+
   if (loading) {
     return <div>Загрузка...</div>;
   }
@@ -40,7 +50,15 @@ const Dashboard = () => {
 
   return (
     <div className="bg-[#F9F9F9] min-h-screen p-8">
-      <h1 className="text-3xl font-bold mb-6">Личный кабинет</h1>
+      <div className="flex justify-between items-center mb-6">
+        <h1 className="text-3xl font-bold">Личный кабинет</h1>
+        <button
+          onClick={handleLogout}
+          className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
+        >
+          Выйти
+        </button>
+      </div>
       <div className="bg-white shadow-md rounded-lg p-6">
         <h2 className="text-2xl font-bold mb-4">Профиль пользователя</h2>
         <p><strong>Имя пользователя:</strong> {userData.username}</p>

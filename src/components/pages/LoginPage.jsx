@@ -1,13 +1,14 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { observer } from 'mobx-react-lite';
-import authStore from '../stores/authStore';
+import { useAuth } from '../../context/AuthContext.jsx';
 
 const LoginPage = observer(() => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const navigate = useNavigate();
+  const { authStore } = useAuth();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -21,31 +22,6 @@ const LoginPage = observer(() => {
 
   return (
     <div className="bg-[#F9F9F9] min-h-screen flex flex-col">
-      {/* Заголовок */}
-      <header className="bg-white shadow-sm">
-        <div className="container mx-auto px-4 py-4 flex justify-between items-center">
-          <div className="flex items-center space-x-2">
-            <span className="text-black"></span>
-            <Link to="/">
-              <span className="text-xl font-bold text-black">Game Tester</span>
-            </Link>
-          </div>
-          <div className="flex space-x-4">
-            <Link to="/register">
-              <button className="bg-red-600 text-white px-4 py-2 rounded-md font-bold hover:bg-red-700 transition-colors">
-                Регистрация
-              </button>
-            </Link>
-            <Link to="/login">
-              <button className="bg-white border border-gray-300 text-red-600 px-4 py-2 rounded-md hover:bg-gray-50 transition-colors">
-                Вход
-              </button>
-            </Link>
-          </div>
-        </div>
-      </header>
-
-      {/* Основной контент */}
       <main className="flex-grow flex items-center justify-center">
         <div className="w-full max-w-md p-8">
           <h1 className="text-2xl font-bold text-center mb-6">Войдите в свою учетную запись</h1>

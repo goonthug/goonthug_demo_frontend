@@ -1,48 +1,14 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { useAuth } from '../../context/AuthContext.jsx'; // Импорт хука
 
 export const HomePage = () => {
-  const { authStore } = useAuth(); // Получаем authStore из контекста
-
   return (
     <div className="bg-[#F9F9F9] min-h-screen">
-      {/* Заголовок */}
-      <header className="bg-white shadow-sm">
-        <div className="container mx-auto px-4 py-4 flex justify-between items-center">
-          <div className="flex items-center space-x-2">
-            <span className="text-black"></span>
-            <span className="text-xl font-bold text-black">Game Tester</span>
-          </div>
-          <nav className="hidden md:flex space-x-6">
-            <Link to="/" className="text-black font-bold hover:text-gray-700">Главная</Link>
-            <Link to="/games" className="text-black hover:text-gray-700">Игры</Link>
-            <Link to="/testers" className="text-black hover:text-gray-700">Тестеры</Link>
-            <Link to="/companies" className="text-black hover:text-gray-700">Компании</Link>
-            {authStore.token && (
-              <Link to="/dashboard" className="text-black hover:text-gray-700">Профиль</Link>
-            )}
-          </nav>
-          <div className="flex space-x-4">
-            <Link to="/register">
-              <button className="bg-red-600 text-white px-4 py-2 rounded-md font-bold hover:bg-red-700 transition-colors">
-                Регистрация
-              </button>
-            </Link>
-            <Link to="/login">
-              <button className="bg-white border border-gray-300 text-red-600 px-4 py-2 rounded-md hover:bg-gray-100 transition-colors">
-                Вход
-              </button>
-            </Link>
-          </div>
-        </div>
-      </header>
-
       {/* Раздел о героях */}
       <section className="relative py-20">
         <div className="container mx-auto px-4 text-center">
           <img
-            src="/images/1.webp" // Replace with your actual game controller image path
+            src="/images/1.webp"
             alt="Game Controller"
             className="w-1/2 mx-auto mb-8 shadow-md"
           />
@@ -146,6 +112,6 @@ export const HomePage = () => {
           </p>
         </div>
       </footer>
-    </div>
+   </div>
   );
 };
