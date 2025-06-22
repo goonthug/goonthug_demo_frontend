@@ -6,6 +6,7 @@ import UploadGameDemo from './components/UploadGameDemo';
 import DownloadGameDemo from './components/DownloadGameDemo';
 import { HomePage } from './components/pages/HomePage';
 import Dashboard from './components/pages/Dashboard';
+import GamesPage from './components/pages/GamesPage';
 import Header from './components/Header.jsx'; // Изменил расширение
 import { AuthProvider } from './context/AuthContext.jsx';
 
@@ -20,6 +21,7 @@ function App() {
         <Route path="/upload" element={<UploadGameDemo />} />
         <Route path="/download" element={<DownloadGameDemo />} />
         <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/games" element={<GamesPage />} />
         <Route path="*" element={<div>404 - Страница не найдена</div>} />
       </Routes>
     </AuthProvider>

@@ -1,14 +1,21 @@
 import React, { useState } from 'react';
 import axios from 'axios';
+import authStore from './stores/authStore.js'; // Исправлен путь
 
 const DownloadGameDemo = () => {
   const [id, setId] = useState('');
   const [error, setError] = useState('');
 
   const handleDownload = async () => {
+    if (!authStore.token || authStore.user?.role !== 'TESTER') {
+      setError('Только тестеры могут скачивать демо');
+      return;
+    }
+
     try {
       const response = await axios.get(`/api/games/demo/download/${id}`, {
         responseType: 'blob',
+        headers: { Authorization: `Bearer ${authStore.token}` },
       });
       const url = window.URL.createObjectURL(new Blob([response.data]));
       const link = document.createElement('a');
@@ -18,7 +25,7 @@ const DownloadGameDemo = () => {
       link.click();
       link.remove();
     } catch (err) {
-      setError('Ошибка скачивания');
+      setError(err.response?.data?.message || 'Ошибка скачивания');
     }
   };
 
