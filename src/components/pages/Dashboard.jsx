@@ -13,8 +13,9 @@ const Dashboard = () => {
     const fetchUserData = async () => {
       try {
         const response = await axios.get('http://localhost:8080/api/user/profile', {
-          headers: { Authorization: `Bearer ${authStore.token}` },
-        });
+  headers: { Authorization: `Bearer ${authStore.token}` },
+});
+console.log('Profile data:', response.data);
         setUserData(response.data);
       } catch (err) {
         if (err.response?.status === 401) {

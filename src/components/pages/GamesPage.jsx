@@ -12,9 +12,9 @@ const GamesPage = () => {
     const fetchGames = async () => {
       try {
         console.log('Fetching games with token:', authStore.token);
-        const response = await axios.get('/api/games', {
-          headers: { Authorization: `Bearer ${authStore.token}` },
-        });
+       const response = await axios.get('http://localhost:8080/api/games', {
+  headers: { Authorization: `Bearer ${authStore.token}` },
+});
         console.log('Games response:', response.data);
         setGames(response.data);
       } catch (err) {
