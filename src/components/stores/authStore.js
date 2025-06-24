@@ -1,20 +1,51 @@
 import { makeAutoObservable } from 'mobx';
 import axios from 'axios';
+import { jwtDecode } from 'jwt-decode'; // Исправленный именованный импорт
 
 class AuthStore {
   token = null;
-  user = null; // Оставим на случай, если захочешь хранить данные пользователя
+  user = null;
 
   constructor() {
     makeAutoObservable(this);
     this.token = localStorage.getItem('token');
     if (this.token) {
-      this.setAuthHeader(); // Установка заголовка только при наличии токена
+      this.setAuthHeader();
+      this.fetchUserProfile();
+      this.setInitialUserFromToken();
     }
   }
 
   setAuthHeader() {
     axios.defaults.headers.common['Authorization'] = `Bearer ${this.token}`;
+  }
+
+  setInitialUserFromToken() {
+    if (jwtDecode) {
+      try {
+        const decodedToken = jwtDecode(this.token);
+        if (decodedToken.role) {
+          this.user = { role: decodedToken.role };
+          console.log('Initial user from token:', this.user);
+        }
+      } catch (error) {
+        console.error('Failed to decode token:', error);
+        this.user = { role: 'UNKNOWN' };
+      }
+    } else {
+      this.user = { role: 'UNKNOWN' };
+      console.warn('jwtDecode is not available. Role extraction skipped.');
+    }
+  }
+
+  async fetchUserProfile() {
+    try {
+      const response = await axios.get('http://localhost:8080/api/user/profile');
+      this.user = response.data;
+      console.log('User fetched:', this.user);
+    } catch (error) {
+      console.error('Failed to fetch user profile:', error);
+    }
   }
 
   async register({ username, password, role, companyName, firstName, lastName }) {
@@ -40,23 +71,14 @@ class AuthStore {
       if (response.status === 200) {
         this.token = response.data.token;
         localStorage.setItem('token', this.token);
-        this.setAuthHeader(); // Устанавливаем заголовок после получения токена
-        // Опционально: загрузка данных пользователя
+        this.setAuthHeader();
+        this.setInitialUserFromToken();
         await this.fetchUserProfile();
         return true;
       }
     } catch (error) {
       console.error('Login error:', error.response?.data || error.message);
       throw new Error(error.response?.data || 'Неверное имя пользователя или пароль');
-    }
-  }
-
-  async fetchUserProfile() {
-    try {
-      const response = await axios.get('http://localhost:8080/api/user/profile');
-      this.user = response.data;
-    } catch (error) {
-      console.error('Failed to fetch user profile:', error);
     }
   }
 
