@@ -82,48 +82,54 @@ const GamesPage = observer(() => {
   };
 
   if (loading) return <div>Загрузка...</div>;
-  if (error) return <div className="text-red-500 p-8">{error}</div>;
+  if (error) return <div className="text-red-600 p-8">{error}</div>;
 
   return (
-    <div className="p-8">
-      <h1 className="text-3xl font-bold mb-6">Игры</h1>
-      {!authStore.token && <p className="text-red-500">Пожалуйста, авторизуйтесь для доступа к играм.</p>}
-      {authStore.token && (
-        <div>
-          {(authStore.user?.role === 'COMPANY' || authStore.user?.role === 'UNKNOWN') && (
-            <div className="mb-4">
-              <h3 className="text-lg font-semibold">Загрузить новую игру</h3>
-              <UploadGameDemo onUploadSuccess={fetchGames} />
+    <div className="bg-[#F9F9F9] min-h-screen">
+      <section className="py-10">
+        <div className="container mx-auto px-4">
+          <h1 className="text-4xl font-bold text-black mb-6">Игры</h1>
+          {!authStore.token && <p className="text-white bg-red-600 p-4 rounded-md shadow-md mb-8">Пожалуйста, авторизуйтесь для доступа к играм.</p>}
+          {authStore.token && (
+            <div>
+              {(authStore.user?.role === 'COMPANY' || authStore.user?.role === 'UNKNOWN') && (
+                <div className="mb-8 bg-white rounded-lg shadow-md p-6">
+                  <h3 className="text-3xl font-bold text-[#333333] mb-6">Загрузить новую игру</h3>
+                  <UploadGameDemo onUploadSuccess={fetchGames} />
+                </div>
+              )}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                {games.length > 0 ? (
+                  games.map((game) => (
+                    <div key={game.id} className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition-all duration-300 hover:scale-105">
+                      <div className="p-4">
+                        <h3 className="text-xl font-bold text-black mb-2">{game.title}</h3>
+                        <p className="text-gray-600 mb-1">Файл: {game.fileName || 'Нет файла'}</p>
+                        <p className="text-gray-600 mb-1">Минимальный рейтинг тестера: {game.minTesterRating || 'Не указан'}</p>
+                        <p className="text-gray-600 mb-1">Требуется ручная выборка: {game.requiresManualSelection ? 'Да' : 'Нет'}</p>
+                        <p className="text-gray-600 mb-4">Статус: {game.status || 'available'}</p>
+                        {(authStore.user?.role === 'TESTER' || authStore.user?.role === 'UNKNOWN') && game.status === 'available' && (
+                          <div className="flex space-x-4">
+                            <button
+                              onClick={() => handleTakeGame(game.id)}
+                              className="bg-red-600 text-white px-6 py-3 rounded-md font-bold hover:bg-red-700 transition-colors"
+                            >
+                              Взять в работу
+                            </button>
+                            <DownloadGameDemo gameId={game.id} />
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  ))
+                ) : (
+                  <p className="text-gray-600 mt-4">Нет доступных игр</p>
+                )}
+              </div>
             </div>
           )}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {games.length > 0 ? (
-              games.map((game) => (
-                <div key={game.id} className="bg-white rounded-lg shadow-md p-4">
-                  <h2 className="text-xl font-bold">{game.title}</h2>
-                  <p>Файл: {game.fileName || 'Нет файла'}</p>
-                  <p>Минимальный рейтинг тестера: {game.minTesterRating || 'Не указан'}</p>
-                  <p>Требуется ручная выборка: {game.requiresManualSelection ? 'Да' : 'Нет'}</p>
-                  <p>Статус: {game.status || 'available'}</p>
-                  {(authStore.user?.role === 'TESTER' || authStore.user?.role === 'UNKNOWN') && game.status === 'available' && (
-                    <div className="mt-2">
-                      <button
-                        onClick={() => handleTakeGame(game.id)}
-                        className="bg-green-500 text-white px-4 py-2 rounded mr-2"
-                      >
-                        Взять в работу
-                      </button>
-                      <DownloadGameDemo gameId={game.id} />
-                    </div>
-                  )}
-                </div>
-              ))
-            ) : (
-              <p>Нет доступных игр</p>
-            )}
-          </div>
         </div>
-      )}
+      </section>
     </div>
   );
 });
@@ -180,20 +186,22 @@ const UploadGameDemo = ({ onUploadSuccess }) => {
   };
 
   return (
-    <div className="mb-4">
-      {error && <p className="text-red-500">{error}</p>}
-      <input
-        type="file"
-        onChange={(e) => setFile(e.target.files[0])}
-        className="mb-2"
-        required
-      />
+    <div className="space-y-6">
+      {error && <p className="text-white bg-red-600 p-4 rounded-md shadow-md mb-4">{error}</p>}
+      <label className="block">
+        <input
+          type="file"
+          onChange={(e) => setFile(e.target.files[0])}
+          className="w-full p-3 border border-gray-300 rounded-md text-gray-800 file:hidden"
+          required
+        />
+      </label>
       <input
         type="text"
         placeholder="Название"
         value={title}
         onChange={(e) => setTitle(e.target.value)}
-        className="w-full p-2 mb-2 border"
+        className="w-full p-3 border border-gray-300 rounded-md text-gray-800 focus:outline-none focus:border-red-600"
         required
       />
       <input
@@ -202,18 +210,18 @@ const UploadGameDemo = ({ onUploadSuccess }) => {
         placeholder="Минимальный рейтинг тестера (опционально)"
         value={minTesterRating}
         onChange={(e) => setMinTesterRating(e.target.value)}
-        className="w-full p-2 mb-2 border"
+        className="w-full p-3 border border-gray-300 rounded-md text-gray-800 focus:outline-none focus:border-red-600"
       />
-      <label>
+      <label className="flex items-center space-x-2 text-gray-800">
         <input
           type="checkbox"
           checked={requiresManualSelection}
           onChange={(e) => setRequiresManualSelection(e.target.checked)}
-          className="mr-2"
+          className="w-5 h-5 border border-gray-300 text-red-600"
         />
-        Требуется ручная выборка
+        <span>Требуется ручная выборка</span>
       </label>
-      <button onClick={handleSubmit} className="w-full p-2 bg-blue-500 text-white rounded mt-2">
+      <button onClick={handleSubmit} className="bg-red-600 text-white px-6 py-3 rounded-md font-bold hover:bg-red-700 transition-colors">
         Загрузить
       </button>
     </div>
@@ -231,7 +239,7 @@ const DownloadGameDemo = ({ gameId }) => {
     }
 
     try {
-      const response = await axios.get(`/api/games/demo/download/${gameId}`, {
+      const response = await axios.get(`http://localhost:8080/api/games/download/${gameId}`, {
         responseType: 'blob',
         headers: { Authorization: `Bearer ${authStore.token}` },
       });
@@ -248,11 +256,11 @@ const DownloadGameDemo = ({ gameId }) => {
   };
 
   return (
-    <div>
-      {error && <p className="text-red-500">{error}</p>}
+    <div className="space-y-2">
+      {error && <p className="text-white bg-red-600 p-2 rounded-md shadow-md mt-2">{error}</p>}
       <button
         onClick={handleDownload}
-        className="p-2 bg-blue-500 text-white rounded"
+        className="bg-red-600 text-white px-6 py-3 rounded-md font-bold hover:bg-red-700 transition-colors"
       >
         Скачать демо
       </button>
