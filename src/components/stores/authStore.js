@@ -1,6 +1,6 @@
 import { makeAutoObservable } from 'mobx';
 import axios from 'axios';
-import { jwtDecode } from 'jwt-decode'; // Исправленный именованный импорт
+import { jwtDecode } from 'jwt-decode';
 
 class AuthStore {
   token = null;
@@ -8,25 +8,36 @@ class AuthStore {
 
   constructor() {
     makeAutoObservable(this);
+    this.initializeAuth();
+  }
+
+  initializeAuth() {
     this.token = localStorage.getItem('token');
     if (this.token) {
       this.setAuthHeader();
-      this.fetchUserProfile();
       this.setInitialUserFromToken();
+      this.fetchUserProfile();
     }
   }
 
   setAuthHeader() {
-    axios.defaults.headers.common['Authorization'] = `Bearer ${this.token}`;
+    if (this.token) {
+      axios.defaults.headers.common['Authorization'] = `Bearer ${this.token}`;
+    } else {
+      delete axios.defaults.headers.common['Authorization'];
+    }
   }
 
   setInitialUserFromToken() {
-    if (jwtDecode) {
+    if (this.token && jwtDecode) {
       try {
         const decodedToken = jwtDecode(this.token);
-        if (decodedToken.role) {
-          this.user = { role: decodedToken.role };
+        if (decodedToken && decodedToken.sub && decodedToken.role) {
+          this.user = { username: decodedToken.sub, role: decodedToken.role };
           console.log('Initial user from token:', this.user);
+        } else {
+          this.user = { role: 'UNKNOWN' };
+          console.warn('Token lacks required fields');
         }
       } catch (error) {
         console.error('Failed to decode token:', error);
@@ -34,17 +45,26 @@ class AuthStore {
       }
     } else {
       this.user = { role: 'UNKNOWN' };
-      console.warn('jwtDecode is not available. Role extraction skipped.');
+      console.warn('jwtDecode or token is not available');
     }
   }
 
   async fetchUserProfile() {
+    if (!this.token) {
+      console.error('No token available for fetching user profile');
+      return;
+    }
     try {
-      const response = await axios.get('http://localhost:8080/api/user/profile');
+      const response = await axios.get('http://localhost:8080/api/user/profile', {
+        headers: { 'Authorization': `Bearer ${this.token}` }
+      });
       this.user = response.data;
       console.log('User fetched:', this.user);
     } catch (error) {
-      console.error('Failed to fetch user profile:', error);
+      console.error('Failed to fetch user profile:', error.response?.data || error.message);
+      if (error.response?.status === 401) {
+        console.warn('Token might be invalid or expired, consider re-login');
+      }
     }
   }
 
