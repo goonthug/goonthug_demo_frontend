@@ -47,7 +47,6 @@ const GamesPage = observer(() => {
       setError('Необходима авторизация');
       return;
     }
-    // Проверяем роль из токена, если jwt-decode доступен
     let role = 'UNKNOWN';
     if (authStore.user && authStore.user.role) {
       role = authStore.user.role;
@@ -58,7 +57,6 @@ const GamesPage = observer(() => {
         role = decodedToken.role || 'UNKNOWN';
       } catch (e) {
         console.error('Failed to decode token for role:', e);
-        // Если декодирование не удалось, полагаемся на токен для бэкенда
       }
     }
     if (role !== 'TESTER' && role !== 'UNKNOWN') {
@@ -73,8 +71,7 @@ const GamesPage = observer(() => {
       alert('Игра взята в работу');
     } catch (err) {
       console.error('Assign error:', err.response?.data || err.message);
-      setError(err.response?.data?.message || 'Не удалось взять игру в работу. Проверьте условия (например, рейтинг тестера или статус игры).');
-      // Логируем полный ответ для отладки
+      setError(err.response?.data?.message || 'Не удалось взять игру в работу.');
       if (err.response) {
         console.log('Server response:', err.response.data);
       }
@@ -105,8 +102,6 @@ const GamesPage = observer(() => {
                       <div className="p-4">
                         <h3 className="text-xl font-bold text-black mb-2">{game.title}</h3>
                         <p className="text-gray-600 mb-1">Файл: {game.fileName || 'Нет файла'}</p>
-                        <p className="text-gray-600 mb-1">Минимальный рейтинг тестера: {game.minTesterRating || 'Не указан'}</p>
-                        <p className="text-gray-600 mb-1">Требуется ручная выборка: {game.requiresManualSelection ? 'Да' : 'Нет'}</p>
                         <p className="text-gray-600 mb-4">Статус: {game.status || 'available'}</p>
                         {(authStore.user?.role === 'TESTER' || authStore.user?.role === 'UNKNOWN') && game.status === 'available' && (
                           <div className="flex space-x-4">
@@ -138,8 +133,6 @@ const GamesPage = observer(() => {
 const UploadGameDemo = ({ onUploadSuccess }) => {
   const [file, setFile] = useState(null);
   const [title, setTitle] = useState('');
-  const [minTesterRating, setMinTesterRating] = useState('');
-  const [requiresManualSelection, setRequiresManualSelection] = useState(false);
   const [error, setError] = useState('');
 
   const handleSubmit = async (e) => {
@@ -155,15 +148,6 @@ const UploadGameDemo = ({ onUploadSuccess }) => {
     const formData = new FormData();
     formData.append('file', file);
     formData.append('title', title);
-    if (minTesterRating) {
-      const rating = parseInt(minTesterRating, 10);
-      if (isNaN(rating)) {
-        setError('Минимальный рейтинг должен быть целым числом.');
-        return;
-      }
-      formData.append('minTesterRating', rating);
-    }
-    formData.append('requiresManualSelection', requiresManualSelection);
 
     try {
       await axios.post('http://localhost:8080/api/games/upload', formData, {
@@ -174,8 +158,6 @@ const UploadGameDemo = ({ onUploadSuccess }) => {
       });
       setFile(null);
       setTitle('');
-      setMinTesterRating('');
-      setRequiresManualSelection(false);
       setError('');
       if (onUploadSuccess) onUploadSuccess();
       alert('Демо загружено успешно');
@@ -204,23 +186,6 @@ const UploadGameDemo = ({ onUploadSuccess }) => {
         className="w-full p-3 border border-gray-300 rounded-md text-gray-800 focus:outline-none focus:border-red-600"
         required
       />
-      <input
-        type="number"
-        step="1"
-        placeholder="Минимальный рейтинг тестера (опционально)"
-        value={minTesterRating}
-        onChange={(e) => setMinTesterRating(e.target.value)}
-        className="w-full p-3 border border-gray-300 rounded-md text-gray-800 focus:outline-none focus:border-red-600"
-      />
-      <label className="flex items-center space-x-2 text-gray-800">
-        <input
-          type="checkbox"
-          checked={requiresManualSelection}
-          onChange={(e) => setRequiresManualSelection(e.target.checked)}
-          className="w-5 h-5 border border-gray-300 text-red-600"
-        />
-        <span>Требуется ручная выборка</span>
-      </label>
       <button onClick={handleSubmit} className="bg-red-600 text-white px-6 py-3 rounded-md font-bold hover:bg-red-700 transition-colors">
         Загрузить
       </button>
