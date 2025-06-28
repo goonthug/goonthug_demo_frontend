@@ -13,9 +13,9 @@ const Dashboard = () => {
     const fetchUserData = async () => {
       try {
         const response = await axios.get('http://localhost:8080/api/user/profile', {
-  headers: { Authorization: `Bearer ${authStore.token}` },
-});
-console.log('Profile data:', response.data);
+          headers: { Authorization: `Bearer ${authStore.token}` },
+        });
+        console.log('Profile data:', response.data);
         setUserData(response.data);
       } catch (err) {
         if (err.response?.status === 401) {
@@ -36,11 +36,6 @@ console.log('Profile data:', response.data);
     }
   }, [navigate]);
 
-  const handleLogout = () => {
-    authStore.logout();
-    navigate('/');
-  };
-
   if (loading) {
     return <div>Загрузка...</div>;
   }
@@ -53,12 +48,6 @@ console.log('Profile data:', response.data);
     <div className="bg-[#F9F9F9] min-h-screen p-8">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-3xl font-bold">Личный кабинет</h1>
-        <button
-          onClick={handleLogout}
-          className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
-        >
-          Выйти
-        </button>
       </div>
       <div className="bg-white shadow-md rounded-lg p-6">
         <h2 className="text-2xl font-bold mb-4">Профиль пользователя</h2>

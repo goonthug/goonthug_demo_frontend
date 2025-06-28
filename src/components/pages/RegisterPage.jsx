@@ -10,12 +10,32 @@ const RegisterPage = observer(() => {
   const [companyName, setCompanyName] = useState('');
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
-  const [error, setError] = useState('');
+  const [error, setError] = useState(''); // Сохраним для серверных ошибок, но уберём отображение
+  const [validationErrors, setValidationErrors] = useState({});
   const navigate = useNavigate();
   const { authStore } = useAuth();
 
+  const validateForm = () => {
+    const errors = {};
+    if (!username.trim()) errors.username = 'Имя пользователя обязательно';
+    else if (username.length < 3) errors.username = 'Имя пользователя должно содержать минимум 3 символа';
+    if (!password.trim()) errors.password = 'Пароль обязателен';
+    else if (password.length < 6) errors.password = 'Пароль должен содержать минимум 6 символов';
+    if (role === 'COMPANY' && !companyName.trim()) errors.companyName = 'Название компании обязательно';
+    else if (role === 'COMPANY' && companyName.length < 2) errors.companyName = 'Название компании должно содержать минимум 2 символа';
+    if (role === 'TESTER' && !firstName.trim()) errors.firstName = 'Имя обязательно';
+    if (role === 'TESTER' && !lastName.trim()) errors.lastName = 'Фамилия обязательна';
+    return errors;
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+    const errors = validateForm();
+    if (Object.keys(errors).length > 0) {
+      setValidationErrors(errors);
+      return;
+    }
+
     try {
       await authStore.register({
         username,
@@ -27,7 +47,8 @@ const RegisterPage = observer(() => {
       });
       navigate('/login');
     } catch (err) {
-      setError(err.message);
+      setError(err.message); // Сохраняем серверную ошибку, но не отображаем её сверху
+      setValidationErrors({}); // Сбрасываем валидационные ошибки при серверной ошибке
     }
   };
 
@@ -36,30 +57,40 @@ const RegisterPage = observer(() => {
       <main className="flex-grow flex items-center justify-center">
         <div className="w-full max-w-md p-8">
           <h1 className="text-2xl font-bold text-center mb-6">Создайте свою учетную запись</h1>
-          {error && <p className="text-red-500 text-center mb-4">{error}</p>}
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
               <input
                 type="text"
                 placeholder="Имя пользователя"
                 value={username}
-                onChange={(e) => setUsername(e.target.value)}
-                className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-600 text-gray-600"
+                onChange={(e) => {
+                  setUsername(e.target.value);
+                  if (validationErrors.username) setValidationErrors({ ...validationErrors, username: '' });
+                }}
+                className={`w-full px-4 py-2 border ${validationErrors.username ? 'border-red-500' : 'border-gray-300'} rounded-md focus:outline-none focus:ring-2 focus:ring-red-600 text-gray-600`}
               />
+              {validationErrors.username && <p className="text-red-500 text-sm mt-1">{validationErrors.username}</p>}
             </div>
             <div>
               <input
                 type="password"
                 placeholder="Пароль"
                 value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-600 text-gray-600"
+                onChange={(e) => {
+                  setPassword(e.target.value);
+                  if (validationErrors.password) setValidationErrors({ ...validationErrors, password: '' });
+                }}
+                className={`w-full px-4 py-2 border ${validationErrors.password ? 'border-red-500' : 'border-gray-300'} rounded-md focus:outline-none focus:ring-2 focus:ring-red-600 text-gray-600`}
               />
+              {validationErrors.password && <p className="text-red-500 text-sm mt-1">{validationErrors.password}</p>}
             </div>
             <div>
               <select
                 value={role}
-                onChange={(e) => setRole(e.target.value)}
+                onChange={(e) => {
+                  setRole(e.target.value);
+                  setValidationErrors({}); // Сбрасываем ошибки при смене роли
+                }}
                 className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-600 text-gray-600"
               >
                 <option value="TESTER">Тестер</option>
@@ -72,9 +103,13 @@ const RegisterPage = observer(() => {
                   type="text"
                   placeholder="Название компании"
                   value={companyName}
-                  onChange={(e) => setCompanyName(e.target.value)}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-600 text-gray-600"
+                  onChange={(e) => {
+                    setCompanyName(e.target.value);
+                    if (validationErrors.companyName) setValidationErrors({ ...validationErrors, companyName: '' });
+                  }}
+                  className={`w-full px-4 py-2 border ${validationErrors.companyName ? 'border-red-500' : 'border-gray-300'} rounded-md focus:outline-none focus:ring-2 focus:ring-red-600 text-gray-600`}
                 />
+                {validationErrors.companyName && <p className="text-red-500 text-sm mt-1">{validationErrors.companyName}</p>}
               </div>
             )}
             {role === 'TESTER' && (
@@ -84,18 +119,26 @@ const RegisterPage = observer(() => {
                     type="text"
                     placeholder="Имя"
                     value={firstName}
-                    onChange={(e) => setFirstName(e.target.value)}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-600 text-gray-600"
+                    onChange={(e) => {
+                      setFirstName(e.target.value);
+                      if (validationErrors.firstName) setValidationErrors({ ...validationErrors, firstName: '' });
+                    }}
+                    className={`w-full px-4 py-2 border ${validationErrors.firstName ? 'border-red-500' : 'border-gray-300'} rounded-md focus:outline-none focus:ring-2 focus:ring-red-600 text-gray-600`}
                   />
+                  {validationErrors.firstName && <p className="text-red-500 text-sm mt-1">{validationErrors.firstName}</p>}
                 </div>
                 <div>
                   <input
                     type="text"
                     placeholder="Фамилия"
                     value={lastName}
-                    onChange={(e) => setLastName(e.target.value)}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-600 text-gray-600"
+                    onChange={(e) => {
+                      setLastName(e.target.value);
+                      if (validationErrors.lastName) setValidationErrors({ ...validationErrors, lastName: '' });
+                    }}
+                    className={`w-full px-4 py-2 border ${validationErrors.lastName ? 'border-red-500' : 'border-gray-300'} rounded-md focus:outline-none focus:ring-2 focus:ring-red-600 text-gray-600`}
                   />
+                  {validationErrors.lastName && <p className="text-red-500 text-sm mt-1">{validationErrors.lastName}</p>}
                 </div>
               </>
             )}

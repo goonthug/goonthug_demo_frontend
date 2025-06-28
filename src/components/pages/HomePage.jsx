@@ -108,7 +108,7 @@ export const HomePage = () => {
             <Link to="/privacy" className="text-red-600 hover:text-red-700">Политика конфиденциальности</Link>
           </div>
           <p className="text-sm text-gray-600">
-            <span className="mr-1">@</span> ©2024 Game Tester. Все права защищены.
+            <span className="mr-1">@</span> ©2025 Game Tester. Все права защищены.
           </p>
         </div>
       </footer>
