@@ -1,4 +1,4 @@
-import { makeAutoObservable } from 'mobx';
+import { makeAutoObservable, action } from 'mobx';
 import axios from 'axios';
 import { jwtDecode } from 'jwt-decode';
 
@@ -11,29 +11,34 @@ class AuthStore {
     this.initializeAuth();
   }
 
-  initializeAuth() {
-    this.token = localStorage.getItem('token');
-    if (this.token) {
+  initializeAuth = () => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      this.setToken(token); // Используем action
       this.setAuthHeader();
       this.setInitialUserFromToken();
       this.fetchUserProfile();
     }
-  }
+  };
 
-  setAuthHeader() {
+  setToken = action((token) => {
+    this.token = token;
+  });
+
+  setAuthHeader = () => {
     if (this.token) {
       axios.defaults.headers.common['Authorization'] = `Bearer ${this.token}`;
     } else {
       delete axios.defaults.headers.common['Authorization'];
     }
-  }
+  };
 
-  setInitialUserFromToken() {
+  setInitialUserFromToken = () => {
     if (this.token && jwtDecode) {
       try {
         const decodedToken = jwtDecode(this.token);
         if (decodedToken && decodedToken.sub && decodedToken.role) {
-          this.user = { username: decodedToken.sub, role: decodedToken.role };
+          this.user = { email: decodedToken.sub, role: decodedToken.role };
           console.log('Initial user from token:', this.user);
         } else {
           this.user = { role: 'UNKNOWN' };
@@ -47,9 +52,9 @@ class AuthStore {
       this.user = { role: 'UNKNOWN' };
       console.warn('jwtDecode or token is not available');
     }
-  }
+  };
 
-  async fetchUserProfile() {
+  fetchUserProfile = async () => {
     if (!this.token) {
       console.error('No token available for fetching user profile');
       return;
@@ -66,12 +71,12 @@ class AuthStore {
         console.warn('Token might be invalid or expired, consider re-login');
       }
     }
-  }
+  };
 
-  async register({ username, password, role, companyName, firstName, lastName }) {
+  async register({ email, password, role, companyName, firstName, lastName }) {
     try {
       const data = {
-        username,
+        email,
         password,
         role,
         ...(role === 'COMPANY' ? { companyName } : { firstName, lastName }),
@@ -85,11 +90,11 @@ class AuthStore {
     }
   }
 
-  async login(username, password) {
+  async login(email, password) {
     try {
-      const response = await axios.post('http://localhost:8080/api/login', { username, password });
+      const response = await axios.post('http://localhost:8080/api/login', { email, password });
       if (response.status === 200) {
-        this.token = response.data.token;
+        this.setToken(response.data.token); // Используем action
         localStorage.setItem('token', this.token);
         this.setAuthHeader();
         this.setInitialUserFromToken();
@@ -98,16 +103,16 @@ class AuthStore {
       }
     } catch (error) {
       console.error('Login error:', error.response?.data || error.message);
-      throw new Error(error.response?.data || 'Неверное имя пользователя или пароль');
+      throw new Error(error.response?.data || 'Неверный email или пароль');
     }
   }
 
-  logout() {
+  logout = action(() => {
     this.token = null;
     this.user = null;
     localStorage.removeItem('token');
     delete axios.defaults.headers.common['Authorization'];
-  }
+  });
 }
 
 export default new AuthStore();

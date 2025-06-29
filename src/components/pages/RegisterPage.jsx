@@ -4,21 +4,21 @@ import { observer } from 'mobx-react-lite';
 import { useAuth } from '../../context/AuthContext.jsx';
 
 const RegisterPage = observer(() => {
-  const [username, setUsername] = useState('');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [role, setRole] = useState('TESTER');
   const [companyName, setCompanyName] = useState('');
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
-  const [error, setError] = useState(''); // Сохраним для серверных ошибок, но уберём отображение
   const [validationErrors, setValidationErrors] = useState({});
   const navigate = useNavigate();
   const { authStore } = useAuth();
 
   const validateForm = () => {
     const errors = {};
-    if (!username.trim()) errors.username = 'Имя пользователя обязательно';
-    else if (username.length < 3) errors.username = 'Имя пользователя должно содержать минимум 3 символа';
+    if (!email.trim()) errors.email = 'Email обязателен';
+    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) errors.email = 'Некорректный формат email';
+    else if (email.length < 5 || email.length > 255) errors.email = 'Email должен содержать от 5 до 255 символов';
     if (!password.trim()) errors.password = 'Пароль обязателен';
     else if (password.length < 6) errors.password = 'Пароль должен содержать минимум 6 символов';
     if (role === 'COMPANY' && !companyName.trim()) errors.companyName = 'Название компании обязательно';
@@ -38,7 +38,7 @@ const RegisterPage = observer(() => {
 
     try {
       await authStore.register({
-        username,
+        email,
         password,
         role,
         companyName: role === 'COMPANY' ? companyName : null,
@@ -47,8 +47,7 @@ const RegisterPage = observer(() => {
       });
       navigate('/login');
     } catch (err) {
-      setError(err.message); // Сохраняем серверную ошибку, но не отображаем её сверху
-      setValidationErrors({}); // Сбрасываем валидационные ошибки при серверной ошибке
+      setValidationErrors({ email: err.message }); // Предполагаем, что серверная ошибка относится к email
     }
   };
 
@@ -60,16 +59,16 @@ const RegisterPage = observer(() => {
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
               <input
-                type="text"
-                placeholder="Имя пользователя"
-                value={username}
+                type="email"
+                placeholder="Email"
+                value={email}
                 onChange={(e) => {
-                  setUsername(e.target.value);
-                  if (validationErrors.username) setValidationErrors({ ...validationErrors, username: '' });
+                  setEmail(e.target.value);
+                  if (validationErrors.email) setValidationErrors({ ...validationErrors, email: '' });
                 }}
-                className={`w-full px-4 py-2 border ${validationErrors.username ? 'border-red-500' : 'border-gray-300'} rounded-md focus:outline-none focus:ring-2 focus:ring-red-600 text-gray-600`}
+                className={`w-full px-4 py-2 border ${validationErrors.email ? 'border-red-500' : 'border-gray-300'} rounded-md focus:outline-none focus:ring-2 focus:ring-red-600 text-gray-600`}
               />
-              {validationErrors.username && <p className="text-red-500 text-sm mt-1">{validationErrors.username}</p>}
+              {validationErrors.email && <p className="text-red-500 text-sm mt-1">{validationErrors.email}</p>}
             </div>
             <div>
               <input

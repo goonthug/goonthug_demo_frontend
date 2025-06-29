@@ -4,7 +4,7 @@ import { observer } from 'mobx-react-lite';
 import { useAuth } from '../../context/AuthContext.jsx';
 
 const LoginPage = observer(() => {
-  const [username, setUsername] = useState('');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const navigate = useNavigate();
@@ -13,7 +13,7 @@ const LoginPage = observer(() => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await authStore.login(username, password);
+      await authStore.login(email, password);
       navigate('/');
     } catch (err) {
       setError(err.message);
@@ -29,10 +29,10 @@ const LoginPage = observer(() => {
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
               <input
-                type="text"
-                placeholder="Имя пользователя"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
+                type="email"
+                placeholder="Email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
                 className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-600"
               />
             </div>
