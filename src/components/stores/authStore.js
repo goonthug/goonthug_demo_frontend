@@ -60,7 +60,7 @@ class AuthStore {
       return;
     }
     try {
-      const response = await axios.get('http://localhost:8080/api/user/profile', {
+      const response = await axios.get('/api/user/profile', {
         headers: { 'Authorization': `Bearer ${this.token}` }
       });
       this.user = response.data;
@@ -81,7 +81,7 @@ class AuthStore {
         role,
         ...(role === 'COMPANY' ? { companyName } : { firstName, lastName }),
       };
-      const response = await axios.post('http://localhost:8080/api/register', data);
+      const response = await axios.post('/api/register', data);
       if (response.status === 200) {
         return true;
       }
@@ -92,7 +92,7 @@ class AuthStore {
 
   async login(email, password) {
     try {
-      const response = await axios.post('http://localhost:8080/api/login', { email, password });
+      const response = await axios.post('/api/login', { email, password });
       if (response.status === 200) {
         this.setToken(response.data.token); // Используем action
         localStorage.setItem('token', this.token);

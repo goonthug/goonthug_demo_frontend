@@ -23,8 +23,6 @@ const Header = observer(() => {
         <nav className="hidden md:flex space-x-6">
           <Link to="/" className="text-black font-bold hover:text-gray-700">Главная</Link>
           <Link to="/games" className="text-black hover:text-gray-700">Игры</Link>
-          <Link to="/testers" className="text-black hover:text-gray-700">Тестеры</Link>
-          <Link to="/companies" className="text-black hover:text-gray-700">Компании</Link>
           {authStore.token && (
             <Link to="/dashboard" className="text-black hover:text-gray-700">Профиль</Link>
           )}

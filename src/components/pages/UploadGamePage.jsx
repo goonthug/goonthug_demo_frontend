@@ -22,7 +22,7 @@ const UploadGamePage = () => {
     data.append('requiresManualSelection', formData.requiresManualSelection);
 
     try {
-      await axios.post('http://localhost:8080/api/games/upload', data, {
+      await axios.post('/api/games/upload', data, {
         headers: { Authorization: `Bearer ${authStore.token}` },
       });
       navigate('/games');
