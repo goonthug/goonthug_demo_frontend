@@ -1,7 +1,7 @@
-import React from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { observer } from 'mobx-react-lite';
-import { useAuth } from '../context/AuthContext.jsx';
+import React from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { observer } from "mobx-react-lite";
+import { useAuth } from "../context/AuthContext.jsx";
 
 const Header = observer(() => {
   const { authStore } = useAuth();
@@ -9,7 +9,7 @@ const Header = observer(() => {
 
   const handleLogout = () => {
     authStore.logout();
-    navigate('/');
+    navigate("/");
   };
 
   return (
@@ -21,10 +21,22 @@ const Header = observer(() => {
           </Link>
         </div>
         <nav className="hidden md:flex space-x-6">
-          <Link to="/" className="text-black font-bold hover:text-gray-700">Главная</Link>
-          <Link to="/games" className="text-black hover:text-gray-700">Игры</Link>
+          <Link to="/" className="text-black font-bold hover:text-gray-700">
+            Главная
+          </Link>
+          <Link to="/games" className="text-black hover:text-gray-700">
+            Игры
+          </Link>
           {authStore.token && (
-            <Link to="/dashboard" className="text-black hover:text-gray-700">Профиль</Link>
+            <Link to="/feedback" className="text-black hover:text-gray-700">
+              Отзывы
+            </Link>
+          )}
+
+          {authStore.token && (
+            <Link to="/dashboard" className="text-black hover:text-gray-700">
+              Профиль
+            </Link>
           )}
         </nav>
         <div className="flex space-x-4">
