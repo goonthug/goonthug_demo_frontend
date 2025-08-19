@@ -58,6 +58,11 @@ const Header = observer(() => {
               Панель управления
             </Link>
           )}
+          {authStore.token && authStore.user?.role === "ADMIN" && (
+            <Link to="/admin" className={getNavLinkClass("/admin")}>
+              Админ панель
+            </Link>
+          )}
         </nav>
         <div className="flex space-x-4">
           {authStore.token ? (

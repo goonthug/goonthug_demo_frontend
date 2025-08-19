@@ -9,6 +9,7 @@ import Header from "./components/Header.jsx";
 import { AuthProvider } from "./context/AuthContext.jsx";
 import FeedbackPage from "./components/pages/FeedbackPage.jsx";
 import CompanyDashboard from "./components/pages/CompanyDashboard.jsx";
+import AdminPanel from "./components/pages/AdminPanel.jsx";
 
 function App() {
   return (
@@ -23,6 +24,7 @@ function App() {
         <Route path="/upload" element={<UploadGamePage />} />
         <Route path="/feedback" element={<FeedbackPage />} />
         <Route path="/company" element={<CompanyDashboard />} />
+        <Route path="/admin" element={<AdminPanel />} />
         <Route path="*" element={<div>404 - Страница не найдена</div>} />
       </Routes>
     </AuthProvider>
