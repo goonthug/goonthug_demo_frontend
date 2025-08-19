@@ -43,15 +43,19 @@ const Header = observer(() => {
           <Link to="/games" className={getNavLinkClass("/games")}>
             Игры
           </Link>
-          {authStore.token && (
-            <Link to="/feedback" className={getNavLinkClass("/feedback")}>
-              Отзывы
-            </Link>
+          {authStore.token && authStore.user?.role === "TESTER" && (
+            <>
+              <Link to="/feedback" className={getNavLinkClass("/feedback")}>
+                Отзывы
+              </Link>
+              <Link to="/dashboard" className={getNavLinkClass("/dashboard")}>
+                Профиль
+              </Link>
+            </>
           )}
-
-          {authStore.token && (
-            <Link to="/dashboard" className={getNavLinkClass("/dashboard")}>
-              Профиль
+          {authStore.token && authStore.user?.role === "COMPANY" && (
+            <Link to="/company" className={getNavLinkClass("/company")}>
+              Панель управления
             </Link>
           )}
         </nav>
