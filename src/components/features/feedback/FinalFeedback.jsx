@@ -8,7 +8,6 @@ export const FinalFeedback = observer(({ gameId, onSuccess }) => {
   const [checkingFinal, setCheckingFinal] = useState(false);
 
   useEffect(() => {
-    // Проверяем, есть ли уже финальный фидбек
     if (gameId) {
       checkFinalFeedback();
     }

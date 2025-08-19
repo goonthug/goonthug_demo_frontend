@@ -11,7 +11,6 @@ export const GameCard = observer(({ game, onGameStatusChange }) => {
 
   const handleFinalFeedbackSuccess = () => {
     setShowFinalFeedback(false);
-    // Обновляем статус игры на "завершена"
     if (onGameStatusChange) {
       onGameStatusChange(game.id, "завершена");
     }

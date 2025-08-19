@@ -8,15 +8,14 @@ export const CreateFeedback = observer(
       gameId: gameId || 0,
       rating: isFinalFeedback ? 5 : null,
       comment: "",
-      feedbackType: isFinalFeedback ? "FINAL" : "BUG"
+      feedbackType: isFinalFeedback ? "FINAL" : "BUG",
     });
 
     useEffect(() => {
-      // Устанавливаем gameId если он передан
       if (gameId) {
-        setFormData(prev => ({
+        setFormData((prev) => ({
           ...prev,
-          gameId: gameId
+          gameId: gameId,
         }));
       }
     }, [gameId]);
@@ -33,26 +32,27 @@ export const CreateFeedback = observer(
       e.preventDefault();
 
       try {
-        // Подготавливаем данные для отправки
         const submitData = {
           gameId: formData.gameId,
           comment: formData.comment,
-          feedbackType: formData.feedbackType
+          feedbackType: formData.feedbackType,
         };
 
-        // Добавляем рейтинг только для финального фидбека
         if (formData.feedbackType === "FINAL") {
           submitData.rating = formData.rating;
         }
 
-        await feedbackStore.createFeedback(submitData);
+        if (formData.feedbackType === "FINAL") {
+          await feedbackStore.completeTest(submitData);
+        } else {
+          await feedbackStore.createFeedback(submitData);
+        }
 
-        // Очищаем форму после успешного создания
         setFormData({
           gameId: gameId || 0,
           rating: isFinalFeedback ? 5 : null,
           comment: "",
-          feedbackType: isFinalFeedback ? "FINAL" : "BUG"
+          feedbackType: isFinalFeedback ? "FINAL" : "BUG",
         });
 
         if (onSuccess) {
@@ -151,7 +151,11 @@ export const CreateFeedback = observer(
                 : "bg-red-600 text-white hover:bg-red-700"
             }`}
           >
-            {feedbackStore.isCreating ? "Создание..." : (isFinalFeedback ? "Отправить финальный фидбек" : "Создать фидбек")}
+            {feedbackStore.isCreating
+              ? "Создание..."
+              : isFinalFeedback
+              ? "Отправить финальный фидбек"
+              : "Создать фидбек"}
           </button>
         </form>
       </div>
