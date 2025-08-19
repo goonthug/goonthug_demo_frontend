@@ -1,15 +1,31 @@
-import React from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { observer } from "mobx-react-lite";
 import { useAuth } from "../context/AuthContext.jsx";
 
 const Header = observer(() => {
   const { authStore } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
 
   const handleLogout = () => {
     authStore.logout();
     navigate("/");
+  };
+
+  const isActive = (path) => {
+    if (path === "/" && location.pathname === "/") {
+      return true;
+    }
+    if (path !== "/" && location.pathname.startsWith(path)) {
+      return true;
+    }
+    return false;
+  };
+
+  const getNavLinkClass = (path) => {
+    const baseClass = "text-black hover:text-gray-700 transition-colors";
+    const activeClass = "font-bold";
+    return isActive(path) ? `${baseClass} ${activeClass}` : baseClass;
   };
 
   return (
@@ -21,20 +37,20 @@ const Header = observer(() => {
           </Link>
         </div>
         <nav className="hidden md:flex space-x-6">
-          <Link to="/" className="text-black font-bold hover:text-gray-700">
+          <Link to="/" className={getNavLinkClass("/")}>
             Главная
           </Link>
-          <Link to="/games" className="text-black hover:text-gray-700">
+          <Link to="/games" className={getNavLinkClass("/games")}>
             Игры
           </Link>
           {authStore.token && (
-            <Link to="/feedback" className="text-black hover:text-gray-700">
+            <Link to="/feedback" className={getNavLinkClass("/feedback")}>
               Отзывы
             </Link>
           )}
 
           {authStore.token && (
-            <Link to="/dashboard" className="text-black hover:text-gray-700">
+            <Link to="/dashboard" className={getNavLinkClass("/dashboard")}>
               Профиль
             </Link>
           )}
