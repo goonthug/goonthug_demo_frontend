@@ -1,29 +1,28 @@
-import React, { useState, useEffect } from 'react';
-import { observer } from 'mobx-react-lite';
-import adminStore from '../../stores/adminStore';
+import { useState, useEffect } from "react";
+import { observer } from "mobx-react-lite";
+import adminStore from "../../stores/adminStore";
 
 const AdminGames = observer(() => {
-  const [searchTerm, setSearchTerm] = useState('');
+  const [searchTerm, setSearchTerm] = useState("");
   const [selectedGames, setSelectedGames] = useState([]);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(null);
   const [showEditModal, setShowEditModal] = useState(null);
   const [editFormData, setEditFormData] = useState({
-    title: '',
-    description: '',
-    status: 'ACTIVE',
+    title: "",
+    description: "",
+    status: "доступна",
     maxTesters: 10,
-    demoActive: true
+    demoActive: true,
   });
 
   useEffect(() => {
-    // Загружаем игры при загрузке компонента
     adminStore.fetchGames();
   }, []);
 
   const handleSelectGame = (gameId) => {
-    setSelectedGames(prev => 
-      prev.includes(gameId) 
-        ? prev.filter(id => id !== gameId)
+    setSelectedGames((prev) =>
+      prev.includes(gameId)
+        ? prev.filter((id) => id !== gameId)
         : [...prev, gameId]
     );
   };
@@ -33,35 +32,36 @@ const AdminGames = observer(() => {
     if (selectedGames.length === games.length) {
       setSelectedGames([]);
     } else {
-      setSelectedGames(games.map(game => game.id));
+      setSelectedGames(games.map((game) => game.id));
     }
   };
 
   const getFilteredGames = () => {
-    return adminStore.games.filter(game =>
-      game.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      game.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      game.companyName?.toLowerCase().includes(searchTerm.toLowerCase())
+    return adminStore.games.filter(
+      (game) =>
+        game.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        game.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        game.companyName?.toLowerCase().includes(searchTerm.toLowerCase())
     );
   };
 
   const handleDeleteGame = async (gameId) => {
     try {
       await adminStore.deleteGame(gameId);
-      setSelectedGames(prev => prev.filter(id => id !== gameId));
+      setSelectedGames((prev) => prev.filter((id) => id !== gameId));
       setShowDeleteConfirm(null);
     } catch (error) {
-      console.error('Ошибка при удалении игры:', error);
+      console.error("Ошибка при удалении игры:", error);
     }
   };
 
   const handleEditGame = (game) => {
     setEditFormData({
-      title: game.title || '',
-      description: game.description || '',
-      status: game.status || 'ACTIVE',
+      title: game.title || "",
+      description: game.description || "",
+      status: game.status || "доступна",
       maxTesters: game.maxTesters || 10,
-      demoActive: game.demoActive !== false
+      demoActive: game.demoActive !== false,
     });
     setShowEditModal(game.id);
   };
@@ -71,35 +71,35 @@ const AdminGames = observer(() => {
       await adminStore.editGame(showEditModal, editFormData);
       setShowEditModal(null);
     } catch (error) {
-      console.error('Ошибка при редактировании игры:', error);
+      console.error("Ошибка при редактировании игры:", error);
     }
   };
 
   const getStatusColor = (status) => {
     switch (status) {
-      case 'ACTIVE':
-        return 'bg-green-100 text-green-800';
-      case 'DEMO_FINISHED':
-        return 'bg-yellow-100 text-yellow-800';
-      case 'HIDDEN':
-        return 'bg-gray-100 text-gray-800';
-      case 'DELETED':
-        return 'bg-red-100 text-red-800';
+      case "доступна":
+        return "bg-green-100 text-green-800";
+      case "демо завершено":
+        return "bg-yellow-100 text-yellow-800";
+      case "HIDDEN":
+        return "bg-gray-100 text-gray-800";
+      case "DELETED":
+        return "bg-red-100 text-red-800";
       default:
-        return 'bg-gray-100 text-gray-800';
+        return "bg-gray-100 text-gray-800";
     }
   };
 
   const getStatusText = (status) => {
     switch (status) {
-      case 'ACTIVE':
-        return 'Активна';
-      case 'DEMO_FINISHED':
-        return 'Демо завершено';
-      case 'HIDDEN':
-        return 'Скрыта';
-      case 'DELETED':
-        return 'Удалена';
+      case "доступна":
+        return "Активна";
+      case "демо завершено":
+        return "Демо завершено";
+      case "HIDDEN":
+        return "Скрыта";
+      case "DELETED":
+        return "Удалена";
       default:
         return status;
     }
@@ -121,8 +121,12 @@ const AdminGames = observer(() => {
   return (
     <div className="p-6">
       <div className="mb-6">
-        <h2 className="text-2xl font-bold text-gray-900 mb-2">Управление играми</h2>
-        <p className="text-gray-600">Просмотр, редактирование и удаление игр в системе</p>
+        <h2 className="text-2xl font-bold text-gray-900 mb-2">
+          Управление играми
+        </h2>
+        <p className="text-gray-600">
+          Просмотр, редактирование и удаление игр в системе
+        </p>
       </div>
 
       {/* Search and Actions */}
@@ -136,7 +140,7 @@ const AdminGames = observer(() => {
             className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
           />
         </div>
-        
+
         <div className="flex items-center space-x-2">
           {selectedGames.length > 0 && (
             <span className="text-sm text-gray-600">
@@ -155,7 +159,9 @@ const AdminGames = observer(() => {
                 <th className="px-6 py-3 text-left">
                   <input
                     type="checkbox"
-                    checked={selectedGames.length === games.length && games.length > 0}
+                    checked={
+                      selectedGames.length === games.length && games.length > 0
+                    }
                     onChange={handleSelectAll}
                     className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
                   />
@@ -195,8 +201,8 @@ const AdminGames = observer(() => {
                     <div className="flex items-center">
                       <div className="flex-shrink-0 h-12 w-12">
                         {game.imageUrl ? (
-                          <img 
-                            src={game.imageUrl} 
+                          <img
+                            src={game.imageUrl}
                             alt={game.title}
                             className="h-12 w-12 rounded-lg object-cover"
                           />
@@ -208,16 +214,16 @@ const AdminGames = observer(() => {
                       </div>
                       <div className="ml-4">
                         <div className="text-sm font-medium text-gray-900">
-                          {game.title || 'Без названия'}
+                          {game.title || "Без названия"}
                         </div>
                         <div className="text-sm text-gray-500 max-w-xs truncate">
-                          {game.description || 'Без описания'}
+                          {game.description || "Без описания"}
                         </div>
                       </div>
                     </div>
                   </td>
                   <td className="px-6 py-4 text-sm text-gray-900">
-                    {game.companyName || 'Неизвестно'}
+                    {game.companyName || "Неизвестно"}
                   </td>
                   <td className="px-6 py-4 text-sm text-gray-500">
                     <div className="space-y-1">
@@ -228,11 +234,18 @@ const AdminGames = observer(() => {
                   <td className="px-6 py-4 text-sm text-gray-500">
                     <div className="space-y-1">
                       <div>Всего: {game.totalFeedbacks || 0}</div>
-                      <div>Средняя оценка: {game.averageRating ? game.averageRating.toFixed(1) : 'Нет'}</div>
+                      <div>
+                        Средняя оценка:{" "}
+                        {game.averageRating
+                          ? game.averageRating.toFixed(1)
+                          : "Нет"}
+                      </div>
                     </div>
                   </td>
                   <td className="px-6 py-4 text-sm text-gray-500">
-                    {game.createdAt ? new Date(game.createdAt).toLocaleDateString('ru-RU') : 'Неизвестно'}
+                    {game.createdAt
+                      ? new Date(game.createdAt).toLocaleDateString("ru-RU")
+                      : "Неизвестно"}
                   </td>
                   <td className="px-6 py-4 text-right text-sm space-x-2">
                     <button
@@ -260,13 +273,12 @@ const AdminGames = observer(() => {
           <div className="text-center py-12">
             <div className="text-gray-500 text-lg mb-2">🎮</div>
             <h3 className="text-lg font-medium text-gray-900 mb-2">
-              {searchTerm ? 'Игры не найдены' : 'Игр нет'}
+              {searchTerm ? "Игры не найдены" : "Игр нет"}
             </h3>
             <p className="text-gray-500">
-              {searchTerm 
-                ? 'Попробуйте изменить критерии поиска'
-                : 'Игры появятся здесь после загрузки компаниями'
-              }
+              {searchTerm
+                ? "Попробуйте изменить критерии поиска"
+                : "Игры появятся здесь после загрузки компаниями"}
             </p>
           </div>
         )}
@@ -279,7 +291,7 @@ const AdminGames = observer(() => {
             <h3 className="text-lg font-medium text-gray-900 mb-4">
               Редактирование игры
             </h3>
-            
+
             <div className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -288,63 +300,33 @@ const AdminGames = observer(() => {
                 <input
                   type="text"
                   value={editFormData.title}
-                  onChange={(e) => setEditFormData(prev => ({ ...prev, title: e.target.value }))}
+                  onChange={(e) =>
+                    setEditFormData((prev) => ({
+                      ...prev,
+                      title: e.target.value,
+                    }))
+                  }
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 />
               </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Описание
-                </label>
-                <textarea
-                  value={editFormData.description}
-                  onChange={(e) => setEditFormData(prev => ({ ...prev, description: e.target.value }))}
-                  rows={3}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                />
-              </div>
-
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Статус
                 </label>
                 <select
                   value={editFormData.status}
-                  onChange={(e) => setEditFormData(prev => ({ ...prev, status: e.target.value }))}
+                  onChange={(e) =>
+                    setEditFormData((prev) => ({
+                      ...prev,
+                      status: e.target.value,
+                    }))
+                  }
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 >
-                  <option value="ACTIVE">Активна</option>
-                  <option value="DEMO_FINISHED">Демо завершено</option>
+                  <option value="доступна">Активна</option>
+                  <option value="демо завершено">Демо завершено</option>
                   <option value="HIDDEN">Скрыта</option>
                 </select>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Максимум тестеров
-                </label>
-                <input
-                  type="number"
-                  min="1"
-                  max="100"
-                  value={editFormData.maxTesters}
-                  onChange={(e) => setEditFormData(prev => ({ ...prev, maxTesters: parseInt(e.target.value) || 1 }))}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                />
-              </div>
-
-              <div className="flex items-center">
-                <input
-                  type="checkbox"
-                  id="demoActive"
-                  checked={editFormData.demoActive}
-                  onChange={(e) => setEditFormData(prev => ({ ...prev, demoActive: e.target.checked }))}
-                  className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                />
-                <label htmlFor="demoActive" className="ml-2 block text-sm text-gray-700">
-                  Демо активно
-                </label>
               </div>
             </div>
 
@@ -360,7 +342,7 @@ const AdminGames = observer(() => {
                 disabled={adminStore.isEditingGame}
                 className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 disabled:opacity-50"
               >
-                {adminStore.isEditingGame ? 'Сохранение...' : 'Сохранить'}
+                {adminStore.isEditingGame ? "Сохранение..." : "Сохранить"}
               </button>
             </div>
           </div>
@@ -382,7 +364,9 @@ const AdminGames = observer(() => {
               </div>
             </div>
             <p className="text-sm text-gray-500 mb-6">
-              Вы уверены, что хотите удалить эту игру? Это действие нельзя отменить. Все связанные данные (отзывы, назначения) также будут удалены.
+              Вы уверены, что хотите удалить эту игру? Это действие нельзя
+              отменить. Все связанные данные (отзывы, назначения) также будут
+              удалены.
             </p>
             <div className="flex justify-end space-x-3">
               <button
@@ -396,7 +380,7 @@ const AdminGames = observer(() => {
                 disabled={adminStore.isDeletingGame}
                 className="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700 disabled:opacity-50"
               >
-                {adminStore.isDeletingGame ? 'Удаление...' : 'Удалить'}
+                {adminStore.isDeletingGame ? "Удаление..." : "Удалить"}
               </button>
             </div>
           </div>

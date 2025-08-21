@@ -1,45 +1,45 @@
-import React, { useState, useEffect } from 'react';
-import { observer } from 'mobx-react-lite';
-import adminStore from '../../stores/adminStore';
+import { useState, useEffect } from "react";
+import { observer } from "mobx-react-lite";
+import adminStore from "../../stores/adminStore";
 
 const AdminFeedbacks = observer(() => {
-  const [searchTerm, setSearchTerm] = useState('');
-  const [filterType, setFilterType] = useState('all');
-  const [filterRating, setFilterRating] = useState('all');
-  const [sortBy, setSortBy] = useState('createdAt');
-  const [sortOrder, setSortOrder] = useState('desc');
+  const [searchTerm, setSearchTerm] = useState("");
+  const [filterType, setFilterType] = useState("all");
+  const [filterRating, setFilterRating] = useState("all");
+  const [sortBy, setSortBy] = useState("createdAt");
+  const [sortOrder, setSortOrder] = useState("desc");
   const [selectedFeedback, setSelectedFeedback] = useState(null);
 
   useEffect(() => {
-    // Загружаем отзывы при загрузке компонента
     adminStore.fetchFeedbacks();
   }, []);
 
   const getFilteredAndSortedFeedbacks = () => {
-    let filtered = adminStore.feedbacks.filter(feedback => {
+    let filtered = adminStore.feedbacks.filter((feedback) => {
       // Поиск по тексту
-      const matchesSearch = 
+      const matchesSearch =
         feedback.comment?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        feedback.gameName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        feedback.gameTitle?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         feedback.testerName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         feedback.companyName?.toLowerCase().includes(searchTerm.toLowerCase());
 
       if (!matchesSearch) return false;
 
       // Фильтр по типу
-      if (filterType !== 'all' && feedback.type !== filterType) return false;
+      if (filterType !== "all" && feedback.feedbackType !== filterType)
+        return false;
 
       // Фильтр по рейтингу
-      if (filterRating !== 'all') {
+      if (filterRating !== "all") {
         const rating = feedback.rating;
         switch (filterRating) {
-          case '1-2':
+          case "1-2":
             return rating >= 1 && rating <= 2;
-          case '3':
+          case "3":
             return rating === 3;
-          case '4-5':
+          case "4-5":
             return rating >= 4 && rating <= 5;
-          case 'no-rating':
+          case "no-rating":
             return !rating;
           default:
             return true;
@@ -49,30 +49,26 @@ const AdminFeedbacks = observer(() => {
       return true;
     });
 
-    // Сортировка
     filtered.sort((a, b) => {
       let aValue = a[sortBy];
       let bValue = b[sortBy];
 
-      // Обработка дат
-      if (sortBy === 'createdAt') {
+      if (sortBy === "createdAt") {
         aValue = new Date(aValue);
         bValue = new Date(bValue);
       }
 
-      // Обработка чисел
-      if (sortBy === 'rating') {
+      if (sortBy === "rating") {
         aValue = aValue || 0;
         bValue = bValue || 0;
       }
 
-      // Обработка строк
-      if (typeof aValue === 'string') {
+      if (typeof aValue === "string") {
         aValue = aValue.toLowerCase();
         bValue = bValue.toLowerCase();
       }
 
-      if (sortOrder === 'asc') {
+      if (sortOrder === "asc") {
         return aValue > bValue ? 1 : -1;
       } else {
         return aValue < bValue ? 1 : -1;
@@ -84,33 +80,21 @@ const AdminFeedbacks = observer(() => {
 
   const getTypeColor = (type) => {
     switch (type) {
-      case 'BUG':
-        return 'bg-red-100 text-red-800';
-      case 'IMPROVEMENT':
-        return 'bg-blue-100 text-blue-800';
-      case 'FEATURE_REQUEST':
-        return 'bg-purple-100 text-purple-800';
-      case 'GENERAL':
-        return 'bg-gray-100 text-gray-800';
-      case 'FINAL':
-        return 'bg-green-100 text-green-800';
+      case "BUG":
+        return "bg-red-100 text-red-800";
+      case "FINAL":
+        return "bg-green-100 text-green-800";
       default:
-        return 'bg-gray-100 text-gray-800';
+        return "bg-gray-100 text-gray-800";
     }
   };
 
   const getTypeText = (type) => {
     switch (type) {
-      case 'BUG':
-        return 'Баг';
-      case 'IMPROVEMENT':
-        return 'Улучшение';
-      case 'FEATURE_REQUEST':
-        return 'Запрос функции';
-      case 'GENERAL':
-        return 'Общий';
-      case 'FINAL':
-        return 'Финальный';
+      case "BUG":
+        return "Баг";
+      case "FINAL":
+        return "Финальный";
       default:
         return type;
     }
@@ -118,11 +102,14 @@ const AdminFeedbacks = observer(() => {
 
   const renderStars = (rating) => {
     if (!rating) return <span className="text-gray-400">Без оценки</span>;
-    
+
     const stars = [];
     for (let i = 1; i <= 5; i++) {
       stars.push(
-        <span key={i} className={i <= rating ? 'text-yellow-400' : 'text-gray-300'}>
+        <span
+          key={i}
+          className={i <= rating ? "text-yellow-400" : "text-gray-300"}
+        >
           ★
         </span>
       );
@@ -131,13 +118,13 @@ const AdminFeedbacks = observer(() => {
   };
 
   const formatDate = (dateString) => {
-    if (!dateString) return 'Не указана';
-    return new Date(dateString).toLocaleDateString('ru-RU', {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
+    if (!dateString) return "Не указана";
+    return new Date(dateString).toLocaleDateString("ru-RU", {
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
     });
   };
 
@@ -157,14 +144,16 @@ const AdminFeedbacks = observer(() => {
   return (
     <div className="p-6">
       <div className="mb-6">
-        <h2 className="text-2xl font-bold text-gray-900 mb-2">Управление отзывами</h2>
-        <p className="text-gray-600">Просмотр и анализ всех отзывов в системе</p>
+        <h2 className="text-2xl font-bold text-gray-900 mb-2">
+          Управление отзывами
+        </h2>
+        <p className="text-gray-600">
+          Просмотр и анализ всех отзывов в системе
+        </p>
       </div>
 
-      {/* Filters and Search */}
       <div className="bg-white p-4 rounded-lg border border-gray-200 mb-6">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
-          {/* Search */}
           <div className="lg:col-span-2">
             <label className="block text-sm font-medium text-gray-700 mb-1">
               Поиск
@@ -178,7 +167,6 @@ const AdminFeedbacks = observer(() => {
             />
           </div>
 
-          {/* Type Filter */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
               Тип отзыва
@@ -190,14 +178,10 @@ const AdminFeedbacks = observer(() => {
             >
               <option value="all">Все типы</option>
               <option value="BUG">Баги</option>
-              <option value="IMPROVEMENT">Улучшения</option>
-              <option value="FEATURE_REQUEST">Запросы функций</option>
-              <option value="GENERAL">Общие</option>
               <option value="FINAL">Финальные</option>
             </select>
           </div>
 
-          {/* Rating Filter */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
               Рейтинг
@@ -215,7 +199,6 @@ const AdminFeedbacks = observer(() => {
             </select>
           </div>
 
-          {/* Sort */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
               Сортировка
@@ -228,47 +211,58 @@ const AdminFeedbacks = observer(() => {
               >
                 <option value="createdAt">По дате</option>
                 <option value="rating">По рейтингу</option>
-                <option value="gameName">По игре</option>
+                <option value="gameTitle">По игре</option>
                 <option value="type">По типу</option>
               </select>
               <button
-                onClick={() => setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')}
+                onClick={() =>
+                  setSortOrder(sortOrder === "asc" ? "desc" : "asc")
+                }
                 className="px-3 py-2 border border-gray-300 rounded-md hover:bg-gray-50"
               >
-                {sortOrder === 'asc' ? '↑' : '↓'}
+                {sortOrder === "asc" ? "↑" : "↓"}
               </button>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Statistics */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
         <div className="bg-white p-4 rounded-lg border border-gray-200">
-          <div className="text-2xl font-bold text-blue-600">{adminStore.feedbacks.length}</div>
+          <div className="text-2xl font-bold text-blue-600">
+            {adminStore.feedbacks.length}
+          </div>
           <div className="text-sm text-gray-600">Всего отзывов</div>
         </div>
         <div className="bg-white p-4 rounded-lg border border-gray-200">
           <div className="text-2xl font-bold text-green-600">
-            {adminStore.feedbacks.filter(f => f.rating && f.rating >= 4).length}
+            {
+              adminStore.feedbacks.filter((f) => f.rating && f.rating >= 4)
+                .length
+            }
           </div>
           <div className="text-sm text-gray-600">Положительные (4-5★)</div>
         </div>
         <div className="bg-white p-4 rounded-lg border border-gray-200">
           <div className="text-2xl font-bold text-red-600">
-            {adminStore.feedbacks.filter(f => f.rating && f.rating <= 2).length}
+            {
+              adminStore.feedbacks.filter((f) => f.rating && f.rating <= 2)
+                .length
+            }
           </div>
           <div className="text-sm text-gray-600">Отрицательные (1-2★)</div>
         </div>
         <div className="bg-white p-4 rounded-lg border border-gray-200">
           <div className="text-2xl font-bold text-purple-600">
-            {adminStore.feedbacks.filter(f => f.type === 'BUG').length}
+            {
+              adminStore.feedbacks.filter((f) => f.feedbackType === "BUG")
+                .length
+            }
           </div>
           <div className="text-sm text-gray-600">Сообщения о багах</div>
         </div>
       </div>
 
-      {/* Feedbacks List */}
       <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
         <div className="overflow-x-auto">
           <table className="min-w-full divide-y divide-gray-200">
@@ -303,56 +297,51 @@ const AdminFeedbacks = observer(() => {
                   <td className="px-6 py-4">
                     <div className="max-w-xs">
                       <div className="text-sm font-medium text-gray-900 truncate">
-                        {feedback.comment || 'Без комментария'}
+                        {feedback.comment || "Без комментария"}
                       </div>
-                      {feedback.screenshots && feedback.screenshots.length > 0 && (
-                        <div className="text-xs text-blue-600 mt-1">
-                          📷 {feedback.screenshots.length} скриншот(ов)
-                        </div>
-                      )}
+                      {feedback.screenshots &&
+                        feedback.screenshots.length > 0 && (
+                          <div className="text-xs text-blue-600 mt-1">
+                            📷 {feedback.screenshots.length} скриншот(ов)
+                          </div>
+                        )}
                     </div>
                   </td>
                   <td className="px-6 py-4">
                     <div className="flex items-center">
                       <div className="flex-shrink-0 h-8 w-8">
-                        {feedback.gameImageUrl ? (
-                          <img 
-                            src={feedback.gameImageUrl} 
-                            alt={feedback.gameName}
-                            className="h-8 w-8 rounded object-cover"
-                          />
-                        ) : (
-                          <div className="h-8 w-8 rounded bg-gray-200 flex items-center justify-center">
-                            <span className="text-gray-500 text-xs">🎮</span>
-                          </div>
-                        )}
+                        <div className="h-8 w-8 rounded bg-gray-200 flex items-center justify-center">
+                          <span className="text-gray-500 text-xs">🎮</span>
+                        </div>
                       </div>
                       <div className="ml-3">
                         <div className="text-sm font-medium text-gray-900">
-                          {feedback.gameName || 'Неизвестно'}
+                          {feedback.gameTitle || "Неизвестно"}
                         </div>
                         <div className="text-xs text-gray-500">
-                          {feedback.companyName || 'Неизвестная компания'}
+                          {feedback.companyName || "Неизвестная компания"}
                         </div>
                       </div>
                     </div>
                   </td>
                   <td className="px-6 py-4">
                     <div className="text-sm text-gray-900">
-                      {feedback.testerName || 'Неизвестно'}
+                      {feedback.testerName || "Неизвестно"}
                     </div>
                     <div className="text-xs text-gray-500">
-                      {feedback.testerEmail || 'Email не указан'}
+                      {feedback.testerEmail || "Email не указан"}
                     </div>
                   </td>
                   <td className="px-6 py-4">
-                    <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getTypeColor(feedback.type)}`}>
-                      {getTypeText(feedback.type)}
+                    <span
+                      className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getTypeColor(
+                        feedback.feedbackType
+                      )}`}
+                    >
+                      {getTypeText(feedback.feedbackTypeDisplayName)}
                     </span>
                   </td>
-                  <td className="px-6 py-4">
-                    {renderStars(feedback.rating)}
-                  </td>
+                  <td className="px-6 py-4">{renderStars(feedback.rating)}</td>
                   <td className="px-6 py-4 text-sm text-gray-500">
                     {formatDate(feedback.createdAt)}
                   </td>
@@ -374,22 +363,19 @@ const AdminFeedbacks = observer(() => {
           <div className="text-center py-12">
             <div className="text-gray-500 text-lg mb-2">💬</div>
             <h3 className="text-lg font-medium text-gray-900 mb-2">
-              {searchTerm || filterType !== 'all' || filterRating !== 'all' 
-                ? 'Отзывы не найдены' 
-                : 'Отзывов нет'
-              }
+              {searchTerm || filterType !== "all" || filterRating !== "all"
+                ? "Отзывы не найдены"
+                : "Отзывов нет"}
             </h3>
             <p className="text-gray-500">
-              {searchTerm || filterType !== 'all' || filterRating !== 'all'
-                ? 'Попробуйте изменить критерии поиска или фильтры'
-                : 'Отзывы появятся здесь после создания тестерами'
-              }
+              {searchTerm || filterType !== "all" || filterRating !== "all"
+                ? "Попробуйте изменить критерии поиска или фильтры"
+                : "Отзывы появятся здесь после создания тестерами"}
             </p>
           </div>
         )}
       </div>
 
-      {/* Feedback Detail Modal */}
       {selectedFeedback && (
         <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white rounded-lg p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
@@ -406,20 +392,11 @@ const AdminFeedbacks = observer(() => {
             </div>
 
             <div className="space-y-4">
-              {/* Game Info */}
               <div className="flex items-center p-4 bg-gray-50 rounded-lg">
                 <div className="flex-shrink-0 h-12 w-12">
-                  {selectedFeedback.gameImageUrl ? (
-                    <img 
-                      src={selectedFeedback.gameImageUrl} 
-                      alt={selectedFeedback.gameName}
-                      className="h-12 w-12 rounded-lg object-cover"
-                    />
-                  ) : (
-                    <div className="h-12 w-12 rounded-lg bg-gray-200 flex items-center justify-center">
-                      <span className="text-gray-500">🎮</span>
-                    </div>
-                  )}
+                  <div className="h-12 w-12 rounded-lg bg-gray-200 flex items-center justify-center">
+                    <span className="text-gray-500">🎮</span>
+                  </div>
                 </div>
                 <div className="ml-4">
                   <div className="text-sm font-medium text-gray-900">
@@ -431,63 +408,81 @@ const AdminFeedbacks = observer(() => {
                 </div>
               </div>
 
-              {/* Feedback Info */}
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="text-sm font-medium text-gray-700">Тестер</label>
-                  <div className="text-sm text-gray-900">{selectedFeedback.testerName}</div>
-                  <div className="text-xs text-gray-500">{selectedFeedback.testerEmail}</div>
+                  <label className="text-sm font-medium text-gray-700">
+                    Тестер
+                  </label>
+                  <div className="text-sm text-gray-900">
+                    {selectedFeedback.testerName}
+                  </div>
+                  <div className="text-xs text-gray-500">
+                    {selectedFeedback.testerEmail}
+                  </div>
                 </div>
                 <div>
-                  <label className="text-sm font-medium text-gray-700">Дата создания</label>
-                  <div className="text-sm text-gray-900">{formatDate(selectedFeedback.createdAt)}</div>
+                  <label className="text-sm font-medium text-gray-700">
+                    Дата создания
+                  </label>
+                  <div className="text-sm text-gray-900">
+                    {formatDate(selectedFeedback.createdAt)}
+                  </div>
                 </div>
                 <div>
-                  <label className="text-sm font-medium text-gray-700">Тип отзыва</label>
-                  <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getTypeColor(selectedFeedback.type)}`}>
-                    {getTypeText(selectedFeedback.type)}
+                  <label className="text-sm font-medium text-gray-700">
+                    Тип отзыва
+                  </label>
+                  <span
+                    className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getTypeColor(
+                      selectedFeedback.feedbackType
+                    )}`}
+                  >
+                    {getTypeText(selectedFeedback.feedbackType)}
                   </span>
                 </div>
                 <div>
-                  <label className="text-sm font-medium text-gray-700">Рейтинг</label>
+                  <label className="text-sm font-medium text-gray-700">
+                    Рейтинг
+                  </label>
                   <div>{renderStars(selectedFeedback.rating)}</div>
                 </div>
               </div>
 
-              {/* Comment */}
               <div>
-                <label className="text-sm font-medium text-gray-700 mb-2 block">Комментарий</label>
+                <label className="text-sm font-medium text-gray-700 mb-2 block">
+                  Комментарий
+                </label>
                 <div className="p-4 bg-gray-50 rounded-lg">
                   <p className="text-sm text-gray-900 whitespace-pre-wrap">
-                    {selectedFeedback.comment || 'Комментарий не указан'}
+                    {selectedFeedback.comment || "Комментарий не указан"}
                   </p>
                 </div>
               </div>
 
-              {/* Screenshots */}
-              {selectedFeedback.screenshots && selectedFeedback.screenshots.length > 0 && (
-                <div>
-                  <label className="text-sm font-medium text-gray-700 mb-2 block">
-                    Скриншоты ({selectedFeedback.screenshots.length})
-                  </label>
-                  <div className="grid grid-cols-2 gap-4">
-                    {selectedFeedback.screenshots.map((screenshot, index) => (
-                      <div key={index} className="relative">
-                        <img 
-                          src={screenshot.url || screenshot}
-                          alt={`Скриншот ${index + 1}`}
-                          className="w-full h-32 object-cover rounded-lg border border-gray-200"
-                        />
-                        {screenshot.description && (
-                          <div className="mt-1 text-xs text-gray-500">
-                            {screenshot.description}
-                          </div>
-                        )}
-                      </div>
-                    ))}
+              {selectedFeedback.screenshots &&
+                selectedFeedback.screenshots.length > 0 && (
+                  <div>
+                    <label className="text-sm font-medium text-gray-700 mb-2 block">
+                      Скриншоты ({selectedFeedback.screenshots.length})
+                    </label>
+                    <div className="grid grid-cols-2 gap-4">
+                      {selectedFeedback.screenshots.map((screenshot, index) => (
+                        <div key={index} className="relative">
+                          <img
+                            src={screenshot.url || screenshot}
+                            alt={`Скриншот ${index + 1}`}
+                            className="w-full h-32 object-cover rounded-lg border border-gray-200"
+                          />
+                          {screenshot.description && (
+                            <div className="mt-1 text-xs text-gray-500">
+                              {screenshot.description}
+                            </div>
+                          )}
+                        </div>
+                      ))}
+                    </div>
                   </div>
-                </div>
-              )}
+                )}
             </div>
 
             <div className="flex justify-end mt-6">
