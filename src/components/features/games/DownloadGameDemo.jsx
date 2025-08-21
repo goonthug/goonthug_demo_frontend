@@ -44,10 +44,6 @@ export const DownloadGameDemo = observer(({ game, onStatusChange }) => {
         }
       }
 
-      if (!filename.includes(".")) {
-        filename += ".zip";
-      }
-
       const blob = new Blob([response.data], {
         type: response.headers["content-type"] || "application/octet-stream",
       });
