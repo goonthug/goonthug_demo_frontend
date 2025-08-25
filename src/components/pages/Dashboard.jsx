@@ -55,7 +55,7 @@ const Dashboard = () => {
           <>
             <p><strong>Имя:</strong> {userData.firstName || 'Не указано'}</p>
             <p><strong>Фамилия:</strong> {userData.lastName || 'Не указано'}</p>
-            <h3 className="text-xl font-bold mt-6 mb-4">История тестов</h3>
+            <h3 className="text-xl font-bold mt-6 mb-4"></h3>
             {userData.tests?.length > 0 ? (
               <ul>
                 {userData.tests.map((test) => (
@@ -67,7 +67,7 @@ const Dashboard = () => {
                 ))}
               </ul>
             ) : (
-              <p>Нет истории тестов</p>
+              <p></p>
             )}
           </>
         )}
